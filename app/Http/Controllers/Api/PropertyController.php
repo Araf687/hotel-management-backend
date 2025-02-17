@@ -43,24 +43,26 @@ class PropertyController extends Controller
             'description' => 'nullable|string',
         ]);
 
+        
+
         if ($validator->fails()) {
             return response()->json(['error' => $validator->errors()], 422);
         }
 
         $imagename = null;
 
-        echo request()->image;
+        // echo request()->image;
         
         // Handle image upload
         if ($request->hasFile('image')) {
+            
             $image = $request->file('image');
             $path = $image->getClientOriginalExtension();
             $imagename = time() . '.' . $path;
-            $image->move(public_path('uploads/blogs/images'), $imagename);
+            $image->move(public_path('images'), $imagename);
         }
 
-        echo "asa";
-        return;
+        // return;
         // Create the new property with the image path
         $property = Property::create([
             'name' => $request->name,
@@ -89,7 +91,7 @@ class PropertyController extends Controller
         }
 
         // Get the full URL of the image if it exists
-        $property->image_url = $property->image ? asset('storage/' . $property->image) : null;
+        $property->image_url = $property->image ? asset('images/' . $property->image) : null;
 
         return response()->json($property);  // Return the property with the image URL
     }

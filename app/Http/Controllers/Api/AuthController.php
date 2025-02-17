@@ -40,7 +40,7 @@ class AuthController extends Controller
         // Validate request input
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|unique:users,username|max:255',  // Ensure username is unique
-            'username' => 'required|string|unique:users,username|max:255',  // Ensure username is unique
+            'username' => 'nullable|string|unique:users,username|max:255',  // Ensure username is unique
             'email' => 'required|string|email|unique:users,email|max:255',  // Ensure email is unique and valid
             'password' => 'required|string|min:6|confirmed',  // Password confirmation
         ]);
@@ -62,6 +62,15 @@ class AuthController extends Controller
             'data' => $user,
             'messgae' => 'User registered successfully',
         ], 201);  // Return 201 for successful creation
+    }
+
+    // Add the logout function
+    public function logout(Request $request)
+    {
+        // Revoke the user's current API token
+        $request->user()->currentAccessToken()->delete();
+
+        return response()->json(['message' => 'Successfully logged out'], 200);
     }
 
 }
