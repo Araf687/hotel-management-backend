@@ -14,5 +14,6 @@ class Property extends Model
         'per_night_cost',
         'average_rating',
         'description',
+      
     ];
 }

@@ -17,7 +17,7 @@ class PropertyController extends Controller
     {
         // Get the 'per_page' value from the request, default to null if not provided
         $perPage = $request->get('per_page', null);
-    
+        
         if ($perPage) {
             // If 'per_page' is provided, paginate the data
             $properties = Property::paginate($perPage);
@@ -26,8 +26,14 @@ class PropertyController extends Controller
             $properties = Property::all();
         }
     
+        // Loop through each property and set the image_url
+        foreach ($properties as $property) {
+            $property->image_url = $property->image ? asset('images/' . $property->image) : null;
+        }
+    
         return response()->json($properties);
     }
+    
     
 
     public function store(Request $request)
@@ -102,42 +108,43 @@ class PropertyController extends Controller
     public function update(Request $request, string $id)
     {
         $property = Property::find($id);
-
+    
         if (!$property) {
             return response()->json(['error' => 'Property not found'], 404);
         }
-
+    
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
             'address' => 'required|string|max:255',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048', // Ensure valid image type and size
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048', // Ensure valid image type and size, but not required
             'available_rooms' => 'required|integer',
             'per_night_cost' => 'required|numeric',
             'average_rating' => 'nullable|numeric|min:1|max:5',
             'description' => 'nullable|string',
         ]);
-
+    
         if ($validator->fails()) {
             return response()->json(['error' => $validator->errors()], 422);
         }
-
+    
         // Handle the image upload if present
         if ($request->hasFile('image')) {
             // Delete the old image if it exists
             if ($property->image) {
                 Storage::disk('public')->delete($property->image);
             }
-
+    
             // Store the new image and get the path
             $imagePath = $request->file('image')->store('properties', 'public');
             $property->image = $imagePath;  // Update the image path in the database
         }
-
-        // Update the other properties
+    
+        // Update the other properties, excluding the image field from the request
         $property->update($request->except('image'));  // Exclude the image field if it's being handled separately
-
+    
         return response()->json($property);
     }
+    
 
     /**
      * Remove the specified property from storage.
