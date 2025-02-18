@@ -25,7 +25,7 @@ class DatabaseSeeder extends Seeder
         Property::create([
             'name' => 'Admin Property',
             'address' => '123 Admin Street, Cityville',
-            'image' => 'default_image.jpg', // Adjust as per your needs
+            'image' => 'p2.jpg', // Adjust as per your needs
             'available_rooms' => 10,
             'per_night_cost' => 3000.00,
             'average_rating' => 4.5,
